@@ -1,0 +1,19 @@
+{
+  "name": "lucasdevlike/miniloja",
+  "autoload": {
+    "psr-4": {
+      "app\\": "app/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Lucas Fregonezi",
+      "email": "lucasdevlike@gmail.com"
+    }
+  ],
+  "require": {
+    "stripe/stripe-php": "^10.3",
+    "league/plates": "^3.5",
+    "vlucas/phpdotenv": "^5.5"
+  }
+}
