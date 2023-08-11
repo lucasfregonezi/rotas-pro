@@ -3,6 +3,7 @@
 namespace app\library;
 
 use Closure;
+use app\library\Route;
 use app\library\Redirect;
 use app\library\RouteWildcard;
 
@@ -10,21 +11,44 @@ class Router
 {
     private array $routes = [];
     private array $routeOptions = [];
+    private Route $route;
 
-    public function add(string $uri, string $request, string $controller)
+    public function add(string $uri, string $request, string $controller, array $wildcardAliases = [])
     {
-        $route = new Route($request, $controller);
-        $route->addRouteUri(new Uri($uri));
-        $route->addRouteWildcard(new RouteWildcard());
-        $route->addRouteGroupOptions(new RouteOptions($this->routeOptions));
-        $this->routes[] = $route;
+        $this->route = new Route($request, $controller, $wildcardAliases);
+        $this->route->addRouteUri(new Uri($uri));
+        $this->route->addRouteWildcard(new RouteWildcard());
+        $this->route->addRouteGroupOptions(new RouteOptions($this->routeOptions));
+        $this->routes[] = $this->route;
+
+        return $this;
     }
+
 
     public function group(array $routeOptions, Closure $callback)
     {
         $this->routeOptions = $routeOptions;
         $callback->call($this);
         $this->routeOptions = [];
+    }
+
+    public function middleware(array $middlewares)
+    {
+        $options = [];
+        if(!empty($this->routeOptions)) {
+            $options = array_merge($this->routeOptions, ['middlewares' => $middlewares]);
+        } else {
+            $options = ['middlewares' => $middlewares];
+        }
+        $this->route->addRouteGroupOptions(new RouteOptions($options));
+    }
+
+    public function options(array $options)
+    {
+        if(!empty($this->routeOptions)) {
+            $options = array_merge($this->routeOptions, $options);
+        }
+        $this->route->addRouteGroupOptions(new RouteOptions($options));
     }
 
     public function init()
@@ -37,7 +61,7 @@ class Router
             }
         }
 
-        return (new Controller())->call(new Route('GET', 'NotFoundController:index'));
+        return (new Controller())->call(new Route('GET', 'NotFoundController:index', []));
     }
 
 }

@@ -4,9 +4,14 @@ namespace app\controllers\admin;
 
 class UserController
 {
-    public function index()
+    public function index($user, $name)
     {
-        var_dump('User index admin');
+        var_dump($user, $name);
+    }
+
+    public function show($userName)
+    {
+        var_dump('Metodo show User');
     }
 
 }

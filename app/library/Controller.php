@@ -2,8 +2,9 @@
 
 namespace app\library;
 
-use app\library\Route;
 use Exception;
+use app\library\Route;
+use app\library\Middleware;
 
 class Controller
 {
@@ -31,7 +32,13 @@ class Controller
         if (!method_exists($controller, $action)) {
             throw new Exception("Action {$action} does not exist");
         }
-        call_user_func_array([$controller, $action], []);
+
+        //middlewares
+        if($route->getRouteOptionsInstance()?->optionsExist('middlewares')) {
+            (new Middleware($route->getRouteOptionsInstance()->execution('middlewares')))->execute();
+        }
+
+        call_user_func_array([$controller, $action], $route->getRouteWildcardInstance()?->getParams() ?? []);
     }
 
 }
